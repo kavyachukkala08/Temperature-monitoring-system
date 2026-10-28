@@ -1,0 +1,188 @@
+{
+  "version": 1,
+  "name": "Blue Pill blink",
+  "parts": [
+    {
+      "id": "bp1",
+      "type": "bluepill",
+      "props": {},
+      "x": 20,
+      "y": -200,
+      "rot": 0,
+      "program": {
+        "name": "blink"
+      }
+    },
+    {
+      "id": "dht1",
+      "type": "dht",
+      "props": {
+        "model": "dht22",
+        "temperature": 22,
+        "humidity": 50,
+        "pullup": true,
+        "pullup_ohms": 5100
+      },
+      "x": 480,
+      "y": -340,
+      "rot": 0
+    },
+    {
+      "id": "lcd2004i2c1",
+      "type": "lcd2004i2c",
+      "props": {
+        "address": 39,
+        "contrast": 0.75
+      },
+      "x": -540,
+      "y": -300,
+      "rot": 0
+    }
+  ],
+  "wires": [
+    {
+      "id": "w4",
+      "from": "dht1:VCC",
+      "to": "bp1:3V3b",
+      "color": "#e14b4b",
+      "bends": [
+        {
+          "x": 540,
+          "y": -100
+        },
+        {
+          "x": 320,
+          "y": -100
+        },
+        {
+          "x": 320,
+          "y": -140
+        }
+      ]
+    },
+    {
+      "id": "w5",
+      "from": "dht1:GND",
+      "to": "bp1:GNDc",
+      "color": "#8a5cf5",
+      "bends": [
+        {
+          "x": 580,
+          "y": -140
+        },
+        {
+          "x": 480,
+          "y": -140
+        },
+        {
+          "x": 480,
+          "y": -160
+        }
+      ]
+    },
+    {
+      "id": "w6",
+      "from": "dht1:DATA",
+      "to": "bp1:PB0",
+      "color": "#20b2c6",
+      "bends": [
+        {
+          "x": 560,
+          "y": 260
+        },
+        {
+          "x": -60,
+          "y": 260
+        },
+        {
+          "x": -60,
+          "y": 60
+        }
+      ]
+    },
+    {
+      "id": "w1",
+      "from": "bp1:PB7",
+      "to": "lcd2004i2c1:SDA",
+      "color": "#20b2c6",
+      "bends": [
+        {
+          "x": 340,
+          "y": 160
+        },
+        {
+          "x": 340,
+          "y": -620
+        },
+        {
+          "x": -300,
+          "y": -620
+        }
+      ]
+    },
+    {
+      "id": "w2",
+      "from": "lcd2004i2c1:SCL",
+      "to": "bp1:PB6",
+      "color": "#d94f9c",
+      "bends": [
+        {
+          "x": -280,
+          "y": -380
+        },
+        {
+          "x": 280,
+          "y": -380
+        },
+        {
+          "x": 280,
+          "y": 140
+        }
+      ]
+    },
+    {
+      "id": "w3",
+      "from": "lcd2004i2c1:VCC",
+      "to": "bp1:3V3b",
+      "color": "#7a8290",
+      "bends": [
+        {
+          "x": -320,
+          "y": -420
+        },
+        {
+          "x": 240,
+          "y": -420
+        },
+        {
+          "x": 240,
+          "y": -140
+        }
+      ]
+    },
+    {
+      "id": "w9",
+      "from": "lcd2004i2c1:GND",
+      "to": "bp1:GNDb",
+      "color": "#e14b4b",
+      "bends": [
+        {
+          "x": -340,
+          "y": -460
+        },
+        {
+          "x": 180,
+          "y": -460
+        }
+      ]
+    }
+  ],
+  "projects": {
+    "bp1": {
+      "files": {
+        "sketch.ino": "#include <DHT.h>\n#include <Wire.h>\n#include <LiquidCrystal_I2C.h>\n\n#define DHTPIN PB0\n#define DHTTYPE DHT22\n\nDHT dht(DHTPIN, DHTTYPE);\nLiquidCrystal_I2C lcd(0x27, 16, 2);\n\nvoid setup() {\n  Serial.begin(9600);\n  dht.begin();\n  lcd.init();\n  lcd.backlight();\n  lcd.setCursor(0, 0);\n  lcd.print(\"Temp Monitor\");\n  delay(1000);\n}\n\nvoid loop() {\n  delay(2000);                        // DHT22 ki 2 sec gap kavali\n  float h = dht.readHumidity();\n  float t = dht.readTemperature();\n\n  lcd.clear();\n  if (isnan(h) || isnan(t)) {\n    Serial.println(\"Sensor error\");\n    lcd.print(\"Sensor error\");\n    return;\n  }\n\n  Serial.print(\"Temperature: \");\n  Serial.print(t, 1);\n  Serial.print(\" C  Humidity: \");\n  Serial.print(h, 1);\n  Serial.println(\" %\");\n\n  lcd.setCursor(0, 0);\n  lcd.print(\"Temp: \");\n  lcd.print(t, 1);\n  lcd.print(\" C\");\n  lcd.setCursor(0, 1);\n  lcd.print(\"Hum : \");\n  lcd.print(h, 1);\n  lcd.print(\" %\");\n}"
+      },
+      "main": "sketch.ino"
+    }
+  }
+}
